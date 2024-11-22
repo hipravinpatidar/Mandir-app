@@ -17,11 +17,12 @@ class Mandir extends StatefulWidget {
 
 class _MandirState extends State<Mandir> with TickerProviderStateMixin {
 
+  late TabController _tabController;
+  late PageController _pageController;
 
   bool isLoading = false;
   int selectedIndex = 0;
 
-   TabController? _tabController;
 
   @override
   void initState() {
@@ -32,7 +33,8 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
-    _tabController!.dispose();
+    _tabController.dispose();
+    _pageController.dispose();
   }
 
   List<MandirData> mandirTabs = [];
@@ -59,121 +61,21 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
           setState(() {
             mandirTabs = reorderedTabs;
 
-
             _tabController = TabController(length: mandirTabs.length, vsync: this);
 
-            _tabController!.addListener(() {
-              // Only proceed if the index has actually changed
-              if (_tabController!.index == _tabController!.previousIndex) {
-                return; // No action if the tab hasn't changed
-              }
+            _pageController = PageController(initialPage: 0);
 
-              // Check if the user has reached the last tab and is trying to scroll past it
-              if (_tabController!.index == mandirTabs.length - 1) {
-                // Delay the transition to avoid abrupt jumping
-                Future.delayed(Duration(milliseconds: 300), () {
-                  // Check if the user is still on the last tab and trying to scroll past it
-                  if (_tabController!.index == mandirTabs.length - 1) {
-                    // Animate to the first tab to create an infinite loop effect
-                    _tabController!.animateTo(0);
-                    setState(() {
-                      selectedIndex = 0; // Update the selectedIndex
-                    });
-                  }
-                });
-              } else {
-                // If the tab is not the last one, update the selected index normally
+            // TabController listener for tab updates
+            _tabController.addListener(() {
+              if (_tabController.indexIsChanging) {
+                _pageController.jumpToPage(_tabController.index);
                 setState(() {
-                  selectedIndex = _tabController!.index;
+                  selectedIndex = _tabController.index;
                 });
               }
-
-              // Print the tab change for debugging purposes
-              print("Tab Changed: $selectedIndex");
             });
 
-
-
-//             _tabController = TabController(length: mandirTabs.length, vsync: this);
-//
-// // Flag to prevent unwanted jumping to the first tab
-//             bool shouldAnimateToFirstTab = false;
-//
-//             _tabController!.addListener(() {
-//               // Check if the tab change is at the last index
-//               if (_tabController!.index == mandirTabs.length - 1) {
-//                 // We are at the last tab, set the flag to animate back to the first tab
-//                 shouldAnimateToFirstTab = true;
-//               }
-//
-//               // Check if the index has changed and it should only animate to the first tab once
-//               if (_tabController!.index != _tabController!.previousIndex && shouldAnimateToFirstTab) {
-//                 // Delay the jump to avoid abrupt transitions
-//                 Future.delayed(Duration(milliseconds: 300), () {
-//                   _tabController!.animateTo(0); // Animate back to the first tab
-//                   setState(() {
-//                     selectedIndex = 0; // Update selectedIndex
-//                     shouldAnimateToFirstTab = false; // Reset the flag
-//                   });
-//                 });
-//               }
-//
-//               // Update selectedIndex as the tab changes
-//               if (_tabController!.index != _tabController!.previousIndex) {
-//                 setState(() {
-//                   selectedIndex = _tabController!.index;
-//                 });
-//                 print("Tab Changed: $selectedIndex");
-//               }
-//             });
-
-
-
-// Real Code
-
-            // _tabController = TabController(length: mandirTabs.length, vsync: this);
-            //
-            // _tabController!.addListener(() {
-            //   // Check if the index has actually changed
-            //   if (_tabController!.index != _tabController!.previousIndex) {
-            //     setState(() {
-            //       selectedIndex = _tabController!.index;
-            //     });
-            //
-            //     // Check if the current tab is the last one
-            //     if (selectedIndex == mandirTabs.length - 1) {
-            //       Future.delayed(Duration(milliseconds: 300), () {
-            //         _tabController!.animateTo(0); // Animate back to the first tab
-            //         setState(() {
-            //           selectedIndex = 0; // Reset selectedIndex to 0
-            //         });
-            //       });
-            //     }
-            //
-            //     print("Tab Changed: $selectedIndex");
-            //   }
-            // });
-
-
-
-            // _tabController = TabController(length: mandirTabs.length, vsync: this);
-            //
-            // // Add listener to detect tab changes
-            // _tabController!.addListener(() {
-            //
-            //     if (_tabController!.index != _tabController!.previousIndex) {
-            //       setState(() {
-            //         selectedIndex = _tabController!.index;
-            //       });
-            //       print("Tab Changed: ${selectedIndex}");
-            //     }
-            //
-            // });
-            // print('Number of tabs: ${mandirTabs.length}');
-            //
-
           });
-
 
         } else {
           print('Error: Received null or empty data.');
@@ -248,37 +150,6 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
     return reorderedList;
   }
 
-
-// Function to reorder data based on the current day
-//   List<MandirData> reorderDataByDay(List<MandirData> data) {
-//     // Map for deity names associated with each day
-//     Map<String, String> deityForDay = {
-//       'Monday': 'Shiv',
-//       'Tuesday': 'Hanuman',
-//       'Wednesday': 'Ganesh',
-//       'Thursday': 'Vishnu',
-//       'Friday': 'Durga',
-//       'Saturday': 'Shani',
-//       'Sunday': 'Surya',
-//     };
-//
-//     // Get the deity for the current day
-//     String currentDay = getCurrentDay();
-//     String currentDeity = deityForDay[currentDay] ?? '';
-//
-//     // Separate the current day's deity content from the rest
-//     List<MandirData> currentDayContent = data.where((item) {
-//       return item.enName.toLowerCase().contains(currentDeity.toLowerCase());
-//     }).toList();
-//
-//     List<MandirData> otherContent = data.where((item) {
-//       return !item.enName.toLowerCase().contains(currentDeity.toLowerCase());
-//     }).toList();
-//
-//     // Return reordered list
-//     return [...currentDayContent, ...otherContent];
-//   }
-
   @override
   Widget build(BuildContext context) {
 
@@ -311,7 +182,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
 
     return
       isLoading ?
-      Scaffold(backgroundColor: Colors.white,body:  Center(child: CircularProgressIndicator(color: Colors.orange,))) :
+      const Scaffold(backgroundColor: Colors.white,body:  Center(child: CircularProgressIndicator(color: Colors.orange,))) :
       Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -329,7 +200,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
             ),
           ),),
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.person,
               color: Colors.white,
             ),
@@ -354,23 +225,54 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
           isScrollable: true,
               indicatorColor: Colors.transparent,
               dividerColor: Colors.transparent,
-            labelPadding: EdgeInsets.symmetric(horizontal: 8.0),
+            labelPadding: const EdgeInsets.symmetric(horizontal: 8.0),
               tabs: tabs,
           ),
 
         ),
-        body: TabBarView(
-          controller: _tabController,
-          physics: AlwaysScrollableScrollPhysics(),
-        children: [
+        body:
 
-          ...mandirTabs.map((cat) =>
-              MandirHomePage(hiName: cat.hiName,enName: cat.enName,id: cat.id,images: cat.images,thumbNail: cat.thumbnail,),
-          )
-        ])
+        PageView.builder(
+          controller: _pageController,
+          scrollDirection: Axis.horizontal,
+          onPageChanged: (index) {
+            // Looping Logic
+            if (index == mandirTabs.length) {
+              // Scrolled past the last tab, loop to the first
+              Future.delayed(const Duration(milliseconds: 300), () {
+                _pageController.jumpToPage(0); // Jump back to the first page
+                _tabController.animateTo(0);  // Sync the TabBar
+              });
+            } else if (index == -1) {
+              // Scrolled before the first tab, loop to the last
+              Future.delayed(const Duration(milliseconds: 300), () {
+                _pageController.jumpToPage(mandirTabs.length - 1); // Jump to the last page
+                _tabController.animateTo(mandirTabs.length - 1);   // Sync the TabBar
+              });
+            } else {
+              // Normal scroll behavior
+              _tabController.animateTo(index % mandirTabs.length); // Sync TabBar
+              setState(() {
+                selectedIndex = index % mandirTabs.length;
+              });
+            }
+          },
+          itemCount: mandirTabs.length + 1, // Add +1 for the looping logic
+          itemBuilder: (context, index) {
+            // Handle extra index for looping
+            final displayIndex = index % mandirTabs.length;
+            final tab = mandirTabs[displayIndex];
+
+            // Return the content for each tab
+            return MandirHomePage(
+              hiName: tab.hiName,
+              enName: tab.enName,
+              id: tab.id,
+              images: tab.images,
+              thumbNail: tab.thumbnail,
+            );
+          },
+        ),
       );
   }
-
-
-
 }
