@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jaap_latest/api_service/api_service.dart';
 import 'package:jaap_latest/controller/language_manager.dart';
+import 'package:jaap_latest/example.dart';
+import 'package:jaap_latest/model/gridTabs.dart';
 import 'package:jaap_latest/model/mandir_model.dart';
 import 'package:provider/provider.dart';
 import 'mandir_home_page.dart';
 
 class Mandir extends StatefulWidget {
-  const Mandir({super.key});
+  final int tabIndex;
+  const Mandir({super.key, required this.tabIndex,});
 
   @override
   State<Mandir> createState() => _MandirState();
@@ -21,13 +24,14 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
   late PageController _pageController;
 
   bool isLoading = false;
-  int selectedIndex = 0;
-
+  late int selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    selectedIndex = widget.tabIndex;
     getTabs(); // Fetch data after initializing
+    _pageController = PageController(viewportFraction: 0.9);
   }
 
   @override
@@ -61,9 +65,9 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
           setState(() {
             mandirTabs = reorderedTabs;
 
-            _tabController = TabController(length: mandirTabs.length, vsync: this);
+            _tabController = TabController(length: mandirTabs.length, vsync: this,initialIndex: widget.tabIndex);
 
-            _pageController = PageController(initialPage: 0);
+            _pageController = PageController(initialPage: widget.tabIndex);
 
             // TabController listener for tab updates
             _tabController.addListener(() {
@@ -71,6 +75,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
                 _pageController.jumpToPage(_tabController.index);
                 setState(() {
                   selectedIndex = _tabController.index;
+                  //selectedIndex = widget.tabIndex;
                 });
               }
             });
@@ -158,9 +163,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
 
     List<Widget> tabs = [
 
-      ...mandirTabs.map((cat) =>
-
-          Tab(
+      ...mandirTabs.map((cat) => Tab(
             child:Container(
               height: 36,
               width: 36,
@@ -177,7 +180,10 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
               ),
             ),
 
-          ),)
+          ),),
+
+     // Text("View all"),
+
     ];
 
     return
@@ -199,24 +205,29 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
               },
             ),
           ),),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-            onPressed: () {},
+          leading: Consumer<LanguageProvider>(
+            builder: (BuildContext context, languageProvider, Widget? child) {
+              return  IconButton(
+                onPressed: () {
+                  languageProvider.toggleLanguage();
+                },
+                icon: Icon(Icons.translate,color:  languageProvider.language == "english" ?  Colors.white : Colors.black,),
+              );
+            },
           ),
+
           actions: [
-            Consumer<LanguageProvider>(
-              builder: (BuildContext context, languageProvider, Widget? child) {
-                return  IconButton(
-                  onPressed: () {
-                    languageProvider.toggleLanguage();
-                  },
-                  icon: Icon(Icons.translate,color:  languageProvider.language == "english" ?  Colors.white : Colors.black,),
-                );
-              },
-            )
+
+         IconButton(
+          icon: const Icon(
+         Icons.grid_view,
+          color: Colors.white,
+        ),
+        onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Gridtabs(),));
+        },
+      ),
+
           ],
           bottom: TabBar(
             controller: _tabController,
@@ -230,17 +241,17 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
           ),
 
         ),
-        body:
-
-        PageView.builder(
+        body: PageView.builder(
           controller: _pageController,
           scrollDirection: Axis.horizontal,
+         // pageSnapping: true,
+          //physics: BouncingScrollPhysics(),
           onPageChanged: (index) {
             // Looping Logic
             if (index == mandirTabs.length) {
               // Scrolled past the last tab, loop to the first
               Future.delayed(const Duration(milliseconds: 300), () {
-                _pageController.jumpToPage(0); // Jump back to the first page
+                _pageController.animateToPage(0, duration: Duration(seconds: 1), curve: Curves.bounceInOut); // Jump back to the first page
                 _tabController.animateTo(0);  // Sync the TabBar
               });
             } else if (index == -1) {
@@ -264,7 +275,17 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
             final tab = mandirTabs[displayIndex];
 
             // Return the content for each tab
-            return MandirHomePage(
+            return
+
+            //   MandirPage(
+            //     hiName: tab.hiName,
+            //     enName: tab.enName,
+            //     id: tab.id,
+            //     images: tab.images,
+            //     thumbNail: tab.thumbnail,
+            // );
+
+              MandirHomePage(
               hiName: tab.hiName,
               enName: tab.enName,
               id: tab.id,
@@ -273,6 +294,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
             );
           },
         ),
+
       );
   }
 }
