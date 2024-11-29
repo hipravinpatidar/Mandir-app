@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:jaap_latest/controller/audioplayer_manager.dart';
 import 'package:jaap_latest/controller/favourite_provider.dart';
 import 'package:jaap_latest/controller/language_manager.dart';
+import 'package:jaap_latest/view/example.dart';
 import 'package:provider/provider.dart';
 import 'controller/share_controller.dart';
-import 'example.dart';
 import 'view/mandir.dart';
-import 'view/mandir_home_page.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
@@ -26,7 +25,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-    home: Mandir(tabIndex: 0,),
+    home:
+    //FlowerApp()
+    Mandir(tabIndex: 0,),
+
+       // FlowerGifWidget()
+  //  FlowerRainOnGod()
     );
   }
 }

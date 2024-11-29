@@ -72,7 +72,7 @@ class _SangeetViewBhajanState extends State<SangeetViewBhajan> with SingleTicker
     _handleRefresh();
 
     // Set visibility based on the toggle parameter
-    //_isMusicBarVisible = widget.isToggle;
+   // _isMusicBarVisible =  true;
    // print("SubModel Length Is ${widget.subCategoryModel.length}");
 
     // Get all category data as required
@@ -451,211 +451,211 @@ class _SangeetViewBhajanState extends State<SangeetViewBhajan> with SingleTicker
                 // color: CustomColors.clrblack,
                 // child:
                 _buildMusicList(),
-              //),
-              // Music bar logic remains the same
-            //  if (_isMusicBarVisible && audioManager.currentMusic != null)
-                // Align(
-                //   alignment: Alignment.bottomCenter,
-                //   child: AnimatedContainer(
-                //     duration: const Duration(milliseconds: 100),
-                //     height: screenWidth * 0.19,
-                //     color: Colors.brown,
-                //     child: GestureDetector(
-                //       onTap: () {
-                //         Navigator.push(
-                //           context,
-                //           PageRouteBuilder(
-                //             pageBuilder: (context, animation, secondaryAnimation) =>
-                //                 MusicPlayer(
-                //                   widget.godNameHindi,
-                //                   musicData: bhajanDataList,
-                //                   categoryId: widget.categoryId,
-                //                   subCategoryId: widget.subCategoryId,
-                //                   allcategorymodel: allcategorymodel,
-                //                   MyCurrentIndex: audioManager.currentIndex,
-                //                   subCategoryModel: widget.subCategoryModel,
-                //                   godName: widget.godName,
-                //                 ),
-                //             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                //               const begin = Offset(0.0, 1.0);
-                //               const end = Offset.zero;
-                //               const curve = Curves.easeInOutCirc;
-                //               var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                //               return SlideTransition(
-                //                 position: animation.drive(tween),
-                //                 child: child,
-                //               );
-                //             },
-                //             transitionDuration: const Duration(milliseconds: 1000),
-                //           ),
-                //         );
-                //       },
-                //       child: FractionallySizedBox(
-                //         heightFactor: 1.2,
-                //         widthFactor: 1.0,
-                //         child: Padding(
-                //           padding: EdgeInsets.symmetric(
-                //             vertical: screenWidth * 0.02,
-                //             horizontal: screenWidth * 0.02,
-                //           ),
-                //           child: Column(
-                //             children: [
-                //               Row(
-                //                 crossAxisAlignment: CrossAxisAlignment.center,
-                //                 children: [
-                //                   Container(
-                //                     width: screenWidth * 0.09,
-                //                     height: screenWidth * 0.09,
-                //                     decoration: BoxDecoration(
-                //                       image: DecorationImage(
-                //                         image: NetworkImage(
-                //                           audioManager.currentMusic!.image,
-                //                         ),
-                //                         fit: BoxFit.cover,
-                //                       ),
-                //                       borderRadius: BorderRadius.circular(10),
-                //                     ),
-                //                   ),
-                //                   Expanded(
-                //                     child: Padding(
-                //                       padding: EdgeInsets.only(
-                //                         top: screenWidth * 0.02,
-                //                         left: screenWidth * 0.02,
-                //                       ),
-                //                       child: Column(
-                //                         crossAxisAlignment: CrossAxisAlignment.start,
-                //                         children: [
-                //                           SizedBox(
-                //                             width: screenWidth * 0.5,
-                //                             child: Text(
-                //                               audioManager.currentMusic?.title ?? '',
-                //                               style: const TextStyle(
-                //                                 color: Colors.white,
-                //                                 fontWeight: FontWeight.bold,
-                //                                 overflow: TextOverflow.ellipsis,
-                //                               ),
-                //                               maxLines: 1,
-                //                             ),
-                //                           ),
-                //                           SizedBox(
-                //                             width: screenWidth * 0.5,
-                //                             child: Text(
-                //                               audioManager.currentMusic?.singerName ?? '',
-                //                               style: const TextStyle(
-                //                                 color: Colors.white,
-                //                                 fontWeight: FontWeight.bold,
-                //                                 overflow: TextOverflow.ellipsis,
-                //                               ),
-                //                               maxLines: 1,
-                //                             ),
-                //                           ),
-                //                         ],
-                //                       ),
-                //                     ),
-                //                   ),
-                //                   Row(
-                //                     children: [
-                //                       IconButton(
-                //                         onPressed: () {
-                //                           if (audioManager.isPlaying) {
-                //                             if (widget.isFixedTab && allcategorymodel.isNotEmpty) {
-                //                               int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
-                //                               if (currentIndex > 0) {
-                //                                 audioManager.playMusic(allcategorymodel[currentIndex - 1]);
-                //                               } else {
-                //                                 audioManager.playMusic(allcategorymodel.last);
-                //                               }
-                //                             } else {
-                //                               audioManager.skipPrevious();
-                //                             }
-                //                           }
-                //                         },
-                //                         icon: Icon(
-                //                           Icons.skip_previous,
-                //                           color: Colors.white,
-                //                           size: screenWidth * 0.08,
-                //                         ),
-                //                       ),
-                //                       GestureDetector(
-                //                         onTap: () => audioManager.togglePlayPause(),
-                //                         child: Icon(
-                //                           audioManager.isPlaying ? Icons.pause_circle : Icons.play_circle,
-                //                           size: screenWidth * 0.08,
-                //                           color: CustomColors.clrwhite,
-                //                         ),
-                //                       ),
-                //                       IconButton(
-                //                         onPressed: () {
-                //                           if (audioManager.isPlaying) {
-                //                             if (widget.isFixedTab && allcategorymodel.isNotEmpty) {
-                //                               int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
-                //                               if (currentIndex < allcategorymodel.length - 1) {
-                //                                 audioManager.playMusic(allcategorymodel[currentIndex + 1]);
-                //                               } else {
-                //                                 audioManager.playMusic(allcategorymodel.first);
-                //                               }
-                //                             } else {
-                //                               audioManager.skipNext();
-                //                             }
-                //                           }
-                //                         },
-                //                         icon: Icon(
-                //                           Icons.skip_next,
-                //                           color: Colors.white,
-                //                           size: screenWidth * 0.08,
-                //                         ),
-                //                       ),
-                //                       IconButton(
-                //                         onPressed: () {
-                //                           audioManager.stopMusic();
-                //                           setState(() {
-                //                             _isMusicBarVisible = false;
-                //                           });
-                //                         },
-                //                         icon: Icon(
-                //                           Icons.cancel,
-                //                           color: Colors.white,
-                //                           size: screenWidth * 0.08,
-                //                         ),
-                //                       ),
-                //                       Icon(
-                //                         Icons.keyboard_arrow_up,
-                //                         color: Colors.white,
-                //                         size: screenWidth * 0.08,
-                //                       ),
-                //                     ],
-                //                   ),
-                //                 ],
-                //               ),
-                //               Padding(
-                //                 padding: EdgeInsets.symmetric(vertical: screenWidth * 0.01),
-                //                 child: Container(
-                //                   height: 5,
-                //                   width: double.infinity,
-                //                   child: SliderTheme(
-                //                     data: SliderThemeData(
-                //                       activeTrackColor: CustomColors.clrwhite,
-                //                       inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
-                //                       trackHeight: 1.7,
-                //                     ),
-                //                     child: Slider(
-                //                       min: 0.0,
-                //                       max: audioManager.duration?.inSeconds.toDouble() ?? 1.0,
-                //                       value: audioManager.currentPosition.inSeconds.toDouble().clamp(0.0, audioManager.duration?.inSeconds.toDouble() ?? 1.0),
-                //                       onChanged: (double value) {
-                //                         audioManager.seekTo(Duration(seconds: value.toInt()));
-                //                       },
-                //                     ),
-                //                   ),
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
+             // ),
+              //Music bar logic remains the same
+             // if (_isMusicBarVisible && audioManager.currentMusic != null)
+             //    Align(
+             //      alignment: Alignment.bottomCenter,
+             //      child: AnimatedContainer(
+             //        duration: const Duration(milliseconds: 100),
+             //        height: screenWidth * 0.19,
+             //        color: Colors.brown,
+             //        child: GestureDetector(
+             //          onTap: () {
+             //            // Navigator.push(
+             //            //   context,
+             //            //   PageRouteBuilder(
+             //            //     pageBuilder: (context, animation, secondaryAnimation) =>
+             //            //         MusicPlayer(
+             //            //           widget.godNameHindi,
+             //            //           musicData: bhajanDataList,
+             //            //           categoryId: widget.categoryId,
+             //            //           subCategoryId: widget.subCategoryId,
+             //            //           allcategorymodel: allcategorymodel,
+             //            //           MyCurrentIndex: audioManager.currentIndex,
+             //            //           subCategoryModel: widget.subCategoryModel,
+             //            //           godName: widget.godName,
+             //            //         ),
+             //            //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+             //            //       const begin = Offset(0.0, 1.0);
+             //            //       const end = Offset.zero;
+             //            //       const curve = Curves.easeInOutCirc;
+             //            //       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+             //            //       return SlideTransition(
+             //            //         position: animation.drive(tween),
+             //            //         child: child,
+             //            //       );
+             //            //     },
+             //            //     transitionDuration: const Duration(milliseconds: 1000),
+             //            //   ),
+             //            // );
+             //          },
+             //          child: FractionallySizedBox(
+             //            heightFactor: 1.2,
+             //            widthFactor: 1.0,
+             //            child: Padding(
+             //              padding: EdgeInsets.symmetric(
+             //                vertical: screenWidth * 0.02,
+             //                horizontal: screenWidth * 0.02,
+             //              ),
+             //              child: Column(
+             //                children: [
+             //                  Row(
+             //                    crossAxisAlignment: CrossAxisAlignment.center,
+             //                    children: [
+             //                      Container(
+             //                        width: screenWidth * 0.09,
+             //                        height: screenWidth * 0.09,
+             //                        decoration: BoxDecoration(
+             //                          image: DecorationImage(
+             //                            image: NetworkImage(
+             //                              audioManager.currentMusic!.image,
+             //                            ),
+             //                            fit: BoxFit.cover,
+             //                          ),
+             //                          borderRadius: BorderRadius.circular(10),
+             //                        ),
+             //                      ),
+             //                      Expanded(
+             //                        child: Padding(
+             //                          padding: EdgeInsets.only(
+             //                            top: screenWidth * 0.02,
+             //                            left: screenWidth * 0.02,
+             //                          ),
+             //                          child: Column(
+             //                            crossAxisAlignment: CrossAxisAlignment.start,
+             //                            children: [
+             //                              SizedBox(
+             //                                width: screenWidth * 0.5,
+             //                                child: Text(
+             //                                  audioManager.currentMusic?.title ?? '',
+             //                                  style: const TextStyle(
+             //                                    color: Colors.white,
+             //                                    fontWeight: FontWeight.bold,
+             //                                    overflow: TextOverflow.ellipsis,
+             //                                  ),
+             //                                  maxLines: 1,
+             //                                ),
+             //                              ),
+             //                              SizedBox(
+             //                                width: screenWidth * 0.5,
+             //                                child: Text(
+             //                                  audioManager.currentMusic?.singerName ?? '',
+             //                                  style: const TextStyle(
+             //                                    color: Colors.white,
+             //                                    fontWeight: FontWeight.bold,
+             //                                    overflow: TextOverflow.ellipsis,
+             //                                  ),
+             //                                  maxLines: 1,
+             //                                ),
+             //                              ),
+             //                            ],
+             //                          ),
+             //                        ),
+             //                      ),
+             //                      Row(
+             //                        children: [
+             //                          IconButton(
+             //                            onPressed: () {
+             //                              if (audioManager.isPlaying) {
+             //                                if (widget.isFixedTab && allcategorymodel.isNotEmpty) {
+             //                                  int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
+             //                                  if (currentIndex > 0) {
+             //                                    audioManager.playMusic(allcategorymodel[currentIndex - 1]);
+             //                                  } else {
+             //                                    audioManager.playMusic(allcategorymodel.last);
+             //                                  }
+             //                                } else {
+             //                                  audioManager.skipPrevious();
+             //                                }
+             //                              }
+             //                            },
+             //                            icon: Icon(
+             //                              Icons.skip_previous,
+             //                              color: Colors.white,
+             //                              size: screenWidth * 0.08,
+             //                            ),
+             //                          ),
+             //                          GestureDetector(
+             //                            onTap: () => audioManager.togglePlayPause(),
+             //                            child: Icon(
+             //                              audioManager.isPlaying ? Icons.pause_circle : Icons.play_circle,
+             //                              size: screenWidth * 0.08,
+             //                              color: CustomColors.clrwhite,
+             //                            ),
+             //                          ),
+             //                          IconButton(
+             //                            onPressed: () {
+             //                              if (audioManager.isPlaying) {
+             //                                if (widget.isFixedTab && allcategorymodel.isNotEmpty) {
+             //                                  int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
+             //                                  if (currentIndex < allcategorymodel.length - 1) {
+             //                                    audioManager.playMusic(allcategorymodel[currentIndex + 1]);
+             //                                  } else {
+             //                                    audioManager.playMusic(allcategorymodel.first);
+             //                                  }
+             //                                } else {
+             //                                  audioManager.skipNext();
+             //                                }
+             //                              }
+             //                            },
+             //                            icon: Icon(
+             //                              Icons.skip_next,
+             //                              color: Colors.white,
+             //                              size: screenWidth * 0.08,
+             //                            ),
+             //                          ),
+             //                          IconButton(
+             //                            onPressed: () {
+             //                              audioManager.stopMusic();
+             //                              setState(() {
+             //                                _isMusicBarVisible = false;
+             //                              });
+             //                            },
+             //                            icon: Icon(
+             //                              Icons.cancel,
+             //                              color: Colors.white,
+             //                              size: screenWidth * 0.08,
+             //                            ),
+             //                          ),
+             //                          Icon(
+             //                            Icons.keyboard_arrow_up,
+             //                            color: Colors.white,
+             //                            size: screenWidth * 0.08,
+             //                          ),
+             //                        ],
+             //                      ),
+             //                    ],
+             //                  ),
+             //                  Padding(
+             //                    padding: EdgeInsets.symmetric(vertical: screenWidth * 0.01),
+             //                    child: Container(
+             //                      height: 5,
+             //                      width: double.infinity,
+             //                      child: SliderTheme(
+             //                        data: SliderThemeData(
+             //                          activeTrackColor: CustomColors.clrwhite,
+             //                          inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
+             //                          trackHeight: 1.7,
+             //                        ),
+             //                        child: Slider(
+             //                          min: 0.0,
+             //                          max: audioManager.duration?.inSeconds.toDouble() ?? 1.0,
+             //                          value: audioManager.currentPosition.inSeconds.toDouble().clamp(0.0, audioManager.duration?.inSeconds.toDouble() ?? 1.0),
+             //                          onChanged: (double value) {
+             //                            audioManager.seekTo(Duration(seconds: value.toInt()));
+             //                          },
+             //                        ),
+             //                      ),
+             //                    ),
+             //                  ),
+             //                ],
+             //              ),
+             //            ),
+             //          ),
+             //        ),
+             //      ),
+             //    ),
             ],
           ),
         );

@@ -169,11 +169,10 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
               width: 36,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                //shape: BoxShape.circle,
                  borderRadius: BorderRadius.circular(20),
                   border:
                   selectedIndex == mandirTabs.indexOf(cat)
-                     ? Border.all(color: Colors.deepOrange,width:  selectedIndex == mandirTabs.indexOf(cat) ? 3 : 1)
+                     ? Border.all(color: Colors.black,width:  selectedIndex == mandirTabs.indexOf(cat) ? 3 : 1)
                      : Border.all(color: Colors.white),
                   image: DecorationImage(image: NetworkImage(cat.thumbnail),fit: BoxFit.cover),
                   color: Colors.white
@@ -193,6 +192,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
         backgroundColor: Colors.white,
         appBar: AppBar(
           //toolbarHeight: 75,
+         // backgroundColor: Colors.orange.withOpacity(0.5),
           backgroundColor: Colors.orange.withOpacity(0.8),
           centerTitle: true,
           title: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),color: Colors.grey.withOpacity(0.5)),child: Padding(
@@ -201,7 +201,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
               builder: (BuildContext context, languageProvider, Widget? child) {
                 return Text(
                   languageProvider.language == "english" ? mandirTabs[selectedIndex].enName : mandirTabs[selectedIndex].hiName
-                  , style: TextStyle(fontWeight: FontWeight.w400, color: Colors.white,fontSize: screenWidth * 0.05),);
+                  , style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,fontSize: screenWidth * 0.05),);
               },
             ),
           ),),
@@ -275,17 +275,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
             final tab = mandirTabs[displayIndex];
 
             // Return the content for each tab
-            return
-
-            //   MandirPage(
-            //     hiName: tab.hiName,
-            //     enName: tab.enName,
-            //     id: tab.id,
-            //     images: tab.images,
-            //     thumbNail: tab.thumbnail,
-            // );
-
-              MandirHomePage(
+            return MandirHomePage(
               hiName: tab.hiName,
               enName: tab.enName,
               id: tab.id,

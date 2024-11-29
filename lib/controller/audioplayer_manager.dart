@@ -1,6 +1,6 @@
-// import 'package:flutter/material.dart';
-// import 'package:just_audio/just_audio.dart';
-// import '../model/sangeet_model.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:flutter/material.dart';
+import '../model/sangeet_model.dart';
 //
 // enum ShuffleMode {
 //   playNext,
@@ -9,8 +9,6 @@
 // }
 //
 // class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
-//
-//
 //   final AudioPlayer _audioPlayer = AudioPlayer();
 //   List<Sangeet> _playlist = [];
 //   int _currentIndex = -1;
@@ -18,6 +16,7 @@
 //   Sangeet? _currentMusic;
 //   Duration _duration = Duration.zero;
 //   Duration _currentPosition = Duration.zero;
+//
 //   bool _isMusicBarVisible = false;
 //
 //   ShuffleMode _shuffleMode = ShuffleMode.playNext;
@@ -31,6 +30,7 @@
 //   ShuffleMode get shuffleMode => _shuffleMode;
 //
 //   bool get isMusicBarVisible => _isMusicBarVisible;
+//
 //
 //   // Setters
 //
@@ -55,15 +55,16 @@
 //     notifyListeners();
 //   }
 //
+//
 //   Future<void> playMusic(Sangeet music) async {
 //     try {
 //       await _audioPlayer.setUrl(music.audio);
-//       //await _audioPlayer.audioCache;
 //       _audioPlayer.play();
 //       _currentMusic = music;
 //       _currentIndex = _playlist.indexOf(music);
 //       _isPlaying = true;
 //
+//       _isMusicBarVisible = true;
 //       print("My Songs Length Is ${_playlist.length}");
 //
 //       _audioPlayer.durationStream.listen((duration) {
@@ -103,11 +104,8 @@
 //   void pauseMusic() async {
 //     _audioPlayer.pause();
 //     _isPlaying = false;
-//     // await _updateNotification();
-//     // Pause notification player
-//     // AssetsAudioPlayer.newPlayer().pause();
+//     await _updateNotification();
 //     notifyListeners();
-//     //notifyListeners();
 //   }
 //
 //   void togglePlayPause() async {
@@ -167,18 +165,16 @@
 //   }
 //
 //   Future<void> _updateNotification() async {
-//
+//     // Add code for updating the notification with current music info
 //   }
-//
-//
-//
 // }
 //
+//
 
 
-import 'package:just_audio/just_audio.dart';
-import 'package:flutter/material.dart';
-import '../model/sangeet_model.dart';
+// import 'package:just_audio/just_audio.dart';
+// import 'package:sangit/model/sangeet_model.dart';
+// import 'package:flutter/material.dart';
 
 enum ShuffleMode {
   playNext,
@@ -212,6 +208,8 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
 
   // Setters
 
+
+
   void resetMusicBarVisibility() {
     _isMusicBarVisible = false;
   }
@@ -233,7 +231,6 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-
   Future<void> playMusic(Sangeet music) async {
     try {
       await _audioPlayer.setUrl(music.audio);
@@ -241,6 +238,8 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
       _currentMusic = music;
       _currentIndex = _playlist.indexOf(music);
       _isPlaying = true;
+
+      _isMusicBarVisible = true;
 
       print("My Songs Length Is ${_playlist.length}");
 

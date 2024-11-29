@@ -6,6 +6,9 @@ import 'package:gif/gif.dart';
 import 'package:jaap_latest/view/sangeet_view.dart';
 import 'package:provider/provider.dart';
 
+import '../controller/audioplayer_manager.dart';
+import '../controller/music_bar.dart';
+
 class MandirHomePage extends StatefulWidget {
   int? id;
   String? hiName;
@@ -26,11 +29,9 @@ class MandirHomePage extends StatefulWidget {
   State<MandirHomePage> createState() => _MandirHomePageState();
 }
 
-class _MandirHomePageState extends State<MandirHomePage>
-    with SingleTickerProviderStateMixin {
+class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStateMixin {
 
   late PageController _pageController;
-  late GifController _gifController;
 
   final firstBellPlayer = AudioPlayer();
   final secondBellPlayer = AudioPlayer();
@@ -50,8 +51,7 @@ class _MandirHomePageState extends State<MandirHomePage>
 
   int _currentBackgroundIndex = 0;
   int _currentToranIndex = 0;
-  int _currentThaliIndex = 0;
-  int currentGifIndex = 0;
+
   int selectedIndex = 0;
 
   // BELL-11111   L
@@ -62,43 +62,25 @@ class _MandirHomePageState extends State<MandirHomePage>
 
   // Background images list
   List<String> backgroundImages = [
-    'assets/images/backfirst.jpg',
-    'assets/images/backsecond.jpg',
+
+     'assets/images/mandirfirst.jpg',
+     'assets/images/mandirsecond.jpg',
+     'assets/images/mandirthird.jpg',
+     'assets/images/mandirfourth.jpg',
+
+
+    // 'assets/images/backfirst.jpg',
+    // 'assets/images/backsecond.jpg',
   ];
 
   // Toran images list
   List<String> toranImages = [
     'assets/images/toranfirst.png',
-    'assets/images/toransecond.png',
+    //'assets/images/toransecond.png',
     'assets/images/toranthird.png',
     'assets/images/toranfourth.png',
     'assets/images/toranfifth.png',
   ];
-
-  // Thali images list
-  List<String> thaliImages = [
-    'assets/images/silverthali.gif',
-  ];
-
-  final List<String> _flowerGifs = [
-    "assets/images/whiteflower.gif",
-    "assets/images/whiteflower.gif",
-    "assets/images/whiteflower.gif",
-    "assets/images/whiteflower.gif",
-  ];
-
-  void playNextGif() {
-    setState(() {
-      _isFlowerVisible = true;
-      print("is clicked");
-      // Update the current GIF index
-      currentGifIndex = (currentGifIndex + 1) % _flowerGifs.length;
-    });
-
-    // Restart the GIF animation
-    _gifController.reset();
-    _gifController.forward();
-  }
 
   void _toggleImage(bool isToggle) {
     setState(() {
@@ -126,7 +108,6 @@ class _MandirHomePageState extends State<MandirHomePage>
     });
   }
 
-  
   Future<void> playShank() async {
     String audiopath = "images/_shank.mp3";
 
@@ -160,6 +141,9 @@ class _MandirHomePageState extends State<MandirHomePage>
   Future<void> toggleArti() async {
     String audioPath = "images/arti_audio.mp3";
 
+    _isThaliGifVisible = !_isThaliGifVisible;
+
+
     if (isPlaying) {
       // Stop the audio if it's currently playing
       await artiPlayer.stop();
@@ -183,13 +167,8 @@ class _MandirHomePageState extends State<MandirHomePage>
     simulateLoading();
     _pageController = PageController(initialPage: 1000);
 
-    // Initialize the GifController with a duration
-    _gifController = GifController(
-      vsync: this,
-    )..duration = const Duration(seconds: 3);
-
     // Listen to when the audio has completed playing
-    artiPlayer.onPlayerComplete.listen((event) {
+      artiPlayer.onPlayerComplete.listen((event) {
       // Automatically stop the player and toggle the state
       artiPlayer.play(AssetSource("images/arti_audio.mp3"));
       _toggleImage(true);
@@ -198,22 +177,115 @@ class _MandirHomePageState extends State<MandirHomePage>
   }
 
   void simulateLoading() async {
-    await Future.delayed(const Duration(seconds: 5)); // 5-second delay
+    // Simulate loading process
+    await Future.delayed(Duration(seconds: 3));
+
+    // Check if the widget is still mounted before calling setState
+    if (mounted) {
+      setState(() {
+        // Update state here
+        isLoading = true;
+      });
+    }
+  }
+
+  // Lists of GIFs for Flower 1 and Flower 2
+  final List<String> flower1Gifs = [
+
+    "assets/images/flowerloopfirst.gif",
+    "assets/images/flowerloopsecond.gif",
+    "assets/images/flowerloopthird.gif",
+    "assets/images/flowerloopfourth.gif",
+
+  ];
+  final List<String> flower2Gifs = [
+
+    "assets/images/flowerloopfifth.gif",
+    "assets/images/flowerloopsixth.gif",
+    'assets/images/flower.gif',
+    'assets/images/flowerwhitwfull.gif',
+  ];
+
+  // Dynamic list to track active GIFs
+  final List<_GifAnimation> activeGifs = [];
+
+  // Map to manage timers for each GIF
+  final Map<UniqueKey, Timer> _gifTimers = {};
+
+  void _playNewGif(bool isFirst) {
+    final gifList = isFirst ? flower1Gifs : flower2Gifs;
+    final gifIndex = activeGifs.where((gif) => gif.isFirst == isFirst).length % gifList.length;
+
+    // Create a new unique key for the GIF
+    final gifKey = UniqueKey();
+
+    // Add the new GIF
     setState(() {
-      isLoading = true; // Set isLoading to true after delay
+      activeGifs.add(_GifAnimation(
+        gifPath: gifList[gifIndex],
+        isFirst: isFirst,
+        key: gifKey,
+      ));
+    });
+
+    // Schedule a timer to remove the GIF after 5 seconds
+    _gifTimers[gifKey] = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          activeGifs.removeWhere((gif) => gif.key == gifKey);
+          _gifTimers.remove(gifKey); // Remove the timer from the map
+        });
+      }
     });
   }
 
   @override
   void dispose() {
-    super.dispose();
+    // Cancel all timers when disposing the widget
+    for (var timer in _gifTimers.values) {
+      timer.cancel();
+    }
+    _gifTimers.clear();
+
+    // Dispose other resources
     firstBellPlayer.dispose();
     shankPlayer.dispose();
     artiPlayer.dispose();
     secondBellPlayer.dispose();
     _pageController.dispose();
-    _gifController.dispose();
+
+    super.dispose();
   }
+
+  // void _playNewGif(bool isFirst) {
+  //   final gifList = isFirst ? flower1Gifs : flower2Gifs;
+  //   final gifIndex = activeGifs.where((gif) => gif.isFirst == isFirst).length % gifList.length;
+  //
+  //   setState(() {
+  //     activeGifs.add(_GifAnimation(
+  //       gifPath: gifList[gifIndex],
+  //       isFirst: isFirst,
+  //       key: UniqueKey(),
+  //     ));
+  //   });
+  //
+  //   // Remove GIF after 8 seconds
+  //   Timer(const Duration(seconds: 8), () {
+  //     setState(() {
+  //       activeGifs.removeWhere((gif) => gif.key == activeGifs.last.key);
+  //     });
+  //   });
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   firstBellPlayer.dispose();
+  //   shankPlayer.dispose();
+  //   artiPlayer.dispose();
+  //   secondBellPlayer.dispose();
+  //   _pageController.dispose();
+  //    super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -270,23 +342,41 @@ class _MandirHomePageState extends State<MandirHomePage>
             ),
 
             _isThaliGifVisible
-                ? Visibility(
-                    visible: true,
-                    child: Image.asset(
-                      "assets/images/flower.gif", // Replace with your GIF path
-                    ))
-                : Visibility(
-                    visible: _isFlowerVisible,
-                    child: Gif(
-                      image: AssetImage(_flowerGifs[currentGifIndex]),
-                      controller: _gifController, // if duration and fps is null, original gif fps will be used.
-                    //  placeholder: (context) => const Text('Loading...'),
-                      onFetchCompleted: () {
-                        _gifController.reset();
-                        _gifController.forward();
-                      },
+                ? Center(
+                  child: Visibility(
+                      visible: true,
+                      child: Image.asset(
+                        "assets/images/flower.gif", // Replace with your GIF path
+                      )),
+                )
+                : Center(
+                  child: Visibility(
+                      visible: _isFlowerVisible,
+                      child:
+
+                      Stack(
+                        children: [
+
+                          // Display all active GIFs
+                          for (var gif in activeGifs)
+                            Positioned.fill(
+                              child: _buildGifWidget(gif.gifPath),
+                            ),
+
+                        ],
+                      )
+
+                        // Stack(
+                        //   children: activeGifs.map((gif) {
+                        //     return Positioned.fill(
+                        //       key: gif.key,
+                        //       child: _buildGifWidget(gif.gifPath),
+                        //     );
+                        //   }).toList(),
+                        // ),
+
                     ),
-                  ),
+                ),
 
             // Toran at the top
             Positioned(
@@ -332,15 +422,20 @@ class _MandirHomePageState extends State<MandirHomePage>
                   : Positioned(
                       bottom: screenHeight * 0.520,
                       left: screenWidth * 0.10,
-                      child: GestureDetector(
-                          onTap: () {
-                            _toggleImage(true);
-                            playBellFirst();
-                          },
-                          child: Image.asset(
-                            bellImage,
-                            height: 100,
-                          )),
+                      child: Consumer<AudioPlayerManager>(
+                        builder: (BuildContext context, audioManager, Widget? child) {
+                          return GestureDetector(
+                              onTap: () {
+                                _toggleImage(true);
+                                playBellFirst();
+                                audioManager.pauseMusic();
+                              },
+                              child: Image.asset(
+                                bellImage,
+                                height: 100,
+                              ));
+                        },
+                      ),
                     ),
               _showGifs
                   ? Positioned(
@@ -353,15 +448,20 @@ class _MandirHomePageState extends State<MandirHomePage>
                   : Positioned(
                       bottom: screenHeight * 0.520,
                       left: screenWidth * 0.79,
-                      child: GestureDetector(
-                          onTap: () {
-                            _toggleImages(true);
-                            playBellSecond();
-                          },
-                          child: Image.asset(
-                            bellImage,
-                            height: 100,
-                          )),
+                      child: Consumer<AudioPlayerManager>(
+                        builder: (BuildContext context, audioManager, Widget? child) {
+                          return  GestureDetector(
+                              onTap: () {
+                                _toggleImages(true);
+                                playBellSecond();
+                                audioManager.pauseMusic();
+                              },
+                              child: Image.asset(
+                                bellImage,
+                                height: 100,
+                              ));
+                        },
+                      ),
                     ),
             ],
 
@@ -376,7 +476,7 @@ class _MandirHomePageState extends State<MandirHomePage>
                   // Round thali
                   Center(
                     child: Padding(
-                      padding: EdgeInsets.only(top: screenWidth * 0.4),
+                      padding: EdgeInsets.only(top: screenWidth * 0.2),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -392,401 +492,465 @@ class _MandirHomePageState extends State<MandirHomePage>
                   ),
 
                   // Flower Button
-                  Positioned(
-                    top: screenWidth * 0.8,
-                    left: screenWidth * 0.01,
-                    child: Column(
-                      children: [
-                        IgnorePointer(
-                          ignoring: false, // Allow interaction with the buttons
-                          child: GestureDetector(
-                            onTap: () {
-                              playNextGif();
-                            },
-                            child: Container(
-                              width: screenWidth * 0.12,
-                              height: screenWidth * 0.12,
-                              decoration: BoxDecoration(
-                                border:
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return  Positioned(
+                        top: audioManager.isMusicBarVisible ? screenWidth * 0.7 : screenWidth * 0.8,
+                        left: screenWidth * 0.01,
+                        child: Column(
+                          children: [
+                            IgnorePointer(
+                              ignoring: false, // Allow interaction with the buttons
+                              child: Container(
+                                  width: screenWidth * 0.12,
+                                  height: screenWidth * 0.12,
+                                  decoration: BoxDecoration(
+                                    border:
                                     Border.all(color: Colors.white, width: 1),
-                                color: Colors.orange.shade800
-                                    .withOpacity(0.4), // Highlight color
-                                borderRadius: BorderRadius.circular(300),
+                                    // color: Colors.orange.shade800
+                                    //     .withOpacity(0.4), // Highlight color
+                                    borderRadius: BorderRadius.circular(300),
+                                    image: DecorationImage(image:
+                                    AssetImage("assets/images/flowerbuttonanimation.gif") )
+                                  ),
+                                  child: Column(
+                                    children: [
+
+                                      GestureDetector(
+                                        onTap: () {
+                                          _playNewGif(true);
+                                          //_playFirstGif();
+                                          //setState(() {
+                                            //_isFlowerVisible = true;
+                                        //  });
+                                        },
+                                        child: Container(
+                                          height: 20,
+                                          width: 30,
+                                          color: Colors.transparent,
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 5,),
+                                      GestureDetector(
+                                        onTap: () {
+                                          _playNewGif(false);
+                                         // _playSecondGif();
+                                         // setState(() {
+                                            _isFlowerVisible = true;
+                                         // });
+                                        },
+                                        child: Container(
+                                          height: 20,
+                                          width: 30,
+                                          color: Colors.transparent,
+                                        ),
+                                      ),
+
+
+                                    ],
+                                  )
+                                ),
+                             // ),
+                            ),
+                            const SizedBox(height: 3),
+                            Container(
+                              height: screenWidth * 0.05,
+                              width: screenWidth * 0.14,
+                              decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius: BorderRadius.circular(6)),
+                              child: Center(
+                                child: Consumer<LanguageProvider>(
+                                  builder: (BuildContext context, languageProvider, Widget? child) {
+                                    return Text(
+                                      languageProvider.language == "english" ? "Flower" : "पुष्प",
+                                      style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                    );
+                                  },
+                                ),
                               ),
-                              child: Image.asset("assets/images/flower_b.png"),
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 3),
-                        Container(
-                          height: screenWidth * 0.05,
-                          width: screenWidth * 0.14,
-                          decoration: BoxDecoration(
-                              color: Colors.orangeAccent,
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Center(
-                            child: Consumer<LanguageProvider>(
-                              builder: (BuildContext context, languageProvider, Widget? child) {
-                                return Text(
-                                  languageProvider.language == "english" ? "Flower" : "पुष्प",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
                   // Arti button
-                  Positioned(
-                    top: screenWidth * 1,
-                    left: screenWidth * 0.01,
-                    child: Column(
-                      children: [
-                        IgnorePointer(
-                          ignoring: false, // Allow interaction with the buttons
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                toggleArti();
-                                _isThaliGifVisible = !_isThaliGifVisible;
-                              });
-                            },
-                            child: Container(
-                              child: Image.asset("assets/images/aarti_b.png"),
-                              width: screenWidth * 0.12,
-                              height: screenWidth * 0.12,
-                              decoration: BoxDecoration(
-                                border:
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return  Positioned(
+                        top: audioManager.isMusicBarVisible ? screenWidth * 0.9 : screenWidth * 1,
+                        left: screenWidth * 0.01,
+                        child: Column(
+                          children: [
+                            IgnorePointer(
+                              ignoring: false, // Allow interaction with the buttons
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    audioManager.pauseMusic();
+                                    toggleArti();
+                                  });
+                                },
+                                child: Container(
+                                  child: Image.asset("assets/images/artibuttonanimation.gif"),
+                                  width: screenWidth * 0.12,
+                                  height: screenWidth * 0.12,
+                                  decoration: BoxDecoration(
+                                    border:
                                     Border.all(color: Colors.white, width: 1),
-                                color: Colors.orange.shade800
-                                    .withOpacity(0.4), // highlight color
-                                borderRadius: BorderRadius.circular(300),
+                                    color: Colors.orange.shade800
+                                        .withOpacity(0.4), // highlight color
+                                    borderRadius: BorderRadius.circular(300),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        SizedBox(height: 3),
-                        Container(
-                          height: screenWidth * 0.05,
-                          width: screenWidth * 0.14,
-                          decoration: BoxDecoration(
-                              color: Colors.orangeAccent,
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Center(
-                            child: Consumer<LanguageProvider>(
-                              builder: (BuildContext context, languageProvider, Widget? child) {
-                                return Text(
-                                  languageProvider.language == "english" ? "Aarti" : "आरती",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                );
-                              },
+                            SizedBox(height: 3),
+                            Container(
+                              height: screenWidth * 0.05,
+                              width: screenWidth * 0.14,
+                              decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius: BorderRadius.circular(6)),
+                              child: Center(
+                                child: Consumer<LanguageProvider>(
+                                  builder: (BuildContext context, languageProvider, Widget? child) {
+                                    return Text(
+                                      languageProvider.language == "english" ? "Aarti" : "आरती",
+                                      style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
                   // Shank Button
-                  Positioned(
-                    top: 475,
-                    left: screenWidth * 0.01,
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              playShank();
-                            });
-                          },
-                          child: Container(
-                            width: screenWidth * 0.12,
-                            height: screenWidth * 0.12,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 1),
-                              color: Colors.orange.shade300
-                                  .withOpacity(0.4), // highlight color
-                              borderRadius: BorderRadius.circular(300),
-                            ),
-                            child: Image.asset("assets/images/shank.png"),
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-
-                        Container(
-                          height: screenWidth * 0.05,
-                          width: screenWidth * 0.14,
-                          decoration: BoxDecoration(
-                              color: Colors.orangeAccent,
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Center(
-                            child: Consumer<LanguageProvider>(
-                              builder: (BuildContext context, languageProvider, Widget? child) {
-                                return Text(
-                                  languageProvider.language == "english" ? "Shankh" : "शंख",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                );
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return Positioned(
+                        top: audioManager.isMusicBarVisible ? 435 : 475,
+                        left: screenWidth * 0.01,
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  playShank();
+                                });
                               },
+                              child: Container(
+                                width: screenWidth * 0.12,
+                                height: screenWidth * 0.12,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white, width: 1),
+                                  color: Colors.orange.shade300
+                                      .withOpacity(0.4), // highlight color
+                                  borderRadius: BorderRadius.circular(300),
+                                ),
+                                child: Image.asset("assets/images/shankbuttonanimation.gif"),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 3),
+
+                            Container(
+                              height: screenWidth * 0.05,
+                              width: screenWidth * 0.14,
+                              decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius: BorderRadius.circular(6)),
+                              child: Center(
+                                child: Consumer<LanguageProvider>(
+                                  builder: (BuildContext context, languageProvider, Widget? child) {
+                                    return Text(
+                                      languageProvider.language == "english" ? "Shankh" : "शंख",
+                                      style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
-                  // Backgroun Button
-                  Positioned(
-                    top: 555,
-                    left: screenWidth * 0.01,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            // Change background and images on tap
-                            setState(() {
-                              _currentBackgroundIndex =
-                                  (_currentBackgroundIndex + 1) %
-                                      backgroundImages.length;
-                            });
-                          },
-                          child: Container(
-                            width: screenWidth * 0.12,
-                            height: screenWidth * 0.12,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 1),
-                              color: Colors.orange.shade800
-                                  .withOpacity(0.4), // highlight color
-                              borderRadius: BorderRadius.circular(300),
-                            ),
-                            child: Image.asset("assets/images/sanget_b.png"),
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Container(
-                          height: screenWidth * 0.05,
-                          width: screenWidth * 0.14,
-                          decoration: BoxDecoration(
-                              color: Colors.orangeAccent,
-                              borderRadius: BorderRadius.circular(6)),
-                          child:Center(
-                            child: Consumer<LanguageProvider>(
-                              builder: (BuildContext context, languageProvider, Widget? child) {
-                                return Text(
-                                  languageProvider.language == "english" ? "Mandir" : "मंदिर",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                );
+                  // BackGround Button
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return Positioned(
+                        top: audioManager.isMusicBarVisible ? 515 : 550,
+                        left: screenWidth * 0.01,
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                // Change background and images on tap
+                                setState(() {
+                                  _currentBackgroundIndex =
+                                      (_currentBackgroundIndex + 1) %
+                                          backgroundImages.length;
+                                });
                               },
+                              child: Container(
+                                width: screenWidth * 0.12,
+                                height: screenWidth * 0.12,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white, width: 1),
+                                  color: Colors.orange.shade300
+                                      .withOpacity(0.4), // highlight color
+                                  borderRadius: BorderRadius.circular(300),
+                                ),
+                                child: Image.asset("assets/images/templebuttonanimation.gif"),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                            const SizedBox(height: 3),
 
+                            Container(
+                              height: screenWidth * 0.05,
+                              width: screenWidth * 0.14,
+                              decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius: BorderRadius.circular(6)),
+                              child: Center(
+                                child: Consumer<LanguageProvider>(
+                                  builder: (BuildContext context, languageProvider, Widget? child) {
+                                    return Text(
+                                      languageProvider.language == "english" ? "Mandir" : "मंदिर",
+                                      style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
                   // Chadhawa
-                  Positioned(
-                    top: 390,
-                    right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) => SangeetView(
-                              //         widget.hiName ?? '',
-                              //         godName: widget.enName ?? '',
-                              //       ),
-                              //     ));
-                            },
-                            child: Container(
-                              width: screenWidth * 0.14,
-                              height: screenWidth * 0.14,
-                              decoration: BoxDecoration(
-                                border:
-                                Border.all(color: Colors.white, width: 1),
-                                color: Colors.orange.shade800
-                                    .withOpacity(0.4), // highlight color
-                                borderRadius: BorderRadius.circular(300),
-                              ),
-                              child: Image.asset("assets/images/sanget_b.png"),
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Container(
-                            height: screenWidth * 0.05,
-                            width: screenWidth * 0.17,
-                            decoration: BoxDecoration(
-                                color: Colors.orangeAccent,
-                                borderRadius: BorderRadius.circular(6)),
-                            child: Center(
-                              child: Consumer<LanguageProvider>(
-                                builder: (BuildContext context, languageProvider, Widget? child) {
-                                  return Text(
-                                    languageProvider.language == "english" ? "Chadawa" : "चढ़ावा",
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  );
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return  Positioned(
+                        top: audioManager.isMusicBarVisible ? 350 : 380,
+                        right: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //       builder: (context) => SangeetView(
+                                  //         widget.hiName ?? '',
+                                  //         godName: widget.enName ?? '',
+                                  //       ),
+                                  //     ));
                                 },
+                                child: Container(
+                                  width: screenWidth * 0.14,
+                                  height: screenWidth * 0.14,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white, width: 1),
+                                    color: Colors.orange.shade800.withOpacity(0.4), // highlight color
+                                    borderRadius: BorderRadius.circular(300),
+                                  ),
+                                  child: Image.asset("assets/images/buttonanimate.gif"),
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 3),
+                              Container(
+                                height: screenWidth * 0.05,
+                                width: screenWidth * 0.17,
+                                decoration: BoxDecoration(
+                                    color: Colors.orangeAccent,
+                                    borderRadius: BorderRadius.circular(6)),
+                                child: Center(
+                                  child: Consumer<LanguageProvider>(
+                                    builder: (BuildContext context, languageProvider, Widget? child) {
+                                      return Text(
+                                        languageProvider.language == "english" ? "Chadawa" : "चढ़ावा",
+                                        style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
 
                   // Sangeet
-                  Positioned(
-                    top: 475,
-                    right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SangeetView(
-                                      widget.hiName ?? '',
-                                      godName: widget.enName ?? '',
-                                    ),
-                                  ));
-                            },
-                            child: Container(
-                              width: screenWidth * 0.14,
-                              height: screenWidth * 0.14,
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 1),
-                                color: Colors.orange.shade800
-                                    .withOpacity(0.4), // highlight color
-                                borderRadius: BorderRadius.circular(300),
-                              ),
-                              child: Image.asset("assets/images/sanget_b.png"),
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Container(
-                            height: screenWidth * 0.05,
-                            width: screenWidth * 0.14,
-                            decoration: BoxDecoration(
-                                color: Colors.orangeAccent,
-                                borderRadius: BorderRadius.circular(6)),
-                            child: Center(
-                              child: Consumer<LanguageProvider>(
-                                builder: (BuildContext context, languageProvider, Widget? child) {
-                                  return Text(
-                                    languageProvider.language == "english" ? "Bhajan" : "भजन",
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  );
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return Positioned(
+                        top: audioManager.isMusicBarVisible ? 433 : 465,
+                        right: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SangeetView(
+                                          widget.hiName ?? '',
+                                          godName: widget.enName ?? '',
+                                        ),
+                                      ));
                                 },
+                                child: Container(
+                                  width: screenWidth * 0.14,
+                                  height: screenWidth * 0.14,
+                                  decoration: BoxDecoration(
+                                    border:
+                                    Border.all(color: Colors.white, width: 1),
+                                    color: Colors.orange.shade800
+                                        .withOpacity(0.4), // highlight color
+                                    borderRadius: BorderRadius.circular(300),
+                                  ),
+                                  child: Image.asset("assets/images/buttonanimate.gif"),
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 3),
+                              Container(
+                                height: screenWidth * 0.05,
+                                width: screenWidth * 0.14,
+                                decoration: BoxDecoration(
+                                    color: Colors.orangeAccent,
+                                    borderRadius: BorderRadius.circular(6)),
+                                child: Center(
+                                  child: Consumer<LanguageProvider>(
+                                    builder: (BuildContext context, languageProvider, Widget? child) {
+                                      return Text(
+                                        languageProvider.language == "english" ? "Bhajan" : "भजन",
+                                        style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
 
                   // Toran Button
-                  Positioned(
-                    top: 555,
-                    right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // Change background and images on tap
-                              setState(() {
-                                _currentToranIndex = (_currentToranIndex + 1) %
-                                    toranImages.length;
-                              });
-                            },
-                            child: Container(
-                              width: screenWidth * 0.12,
-                              height: screenWidth * 0.12,
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 1),
-                                color: Colors.orange.shade800
-                                    .withOpacity(0.4), // highlight color
-                                borderRadius: BorderRadius.circular(300),
-                              ),
-                              child: Image.asset("assets/images/sanget_b.png"),
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Container(
-                            height: screenWidth * 0.05,
-                            width: screenWidth * 0.14,
-                            decoration: BoxDecoration(
-                                color: Colors.orangeAccent,
-                                borderRadius: BorderRadius.circular(6)),
-                            child: Center(
-                              child: Consumer<LanguageProvider>(
-                                builder: (BuildContext context, languageProvider, Widget? child) {
-                                  return  Text(
-                                    languageProvider.language == "english" ? "Toran" : "तोरण",
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  );
+                  Consumer<AudioPlayerManager>(
+                    builder: (BuildContext context, audioManager, Widget? child) {
+                      return Positioned(
+                        top: audioManager.isMusicBarVisible ? 515 : 550,
+                        right: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  // Change background and images on tap
+                                  setState(() {
+                                    _currentToranIndex = (_currentToranIndex + 1) %
+                                        toranImages.length;
+                                  });
                                 },
+                                child: Container(
+                                  width: screenWidth * 0.12,
+                                  height: screenWidth * 0.12,
+                                  decoration: BoxDecoration(
+                                    border:
+                                    Border.all(color: Colors.white, width: 1),
+                                    color: Colors.orange.shade800
+                                        .withOpacity(0.4), // highlight color
+                                    borderRadius: BorderRadius.circular(300),
+                                  ),
+                                  child: Image.asset("assets/images/buttonanimate.gif"),
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 3),
+                              Container(
+                                height: screenWidth * 0.05,
+                                width: screenWidth * 0.14,
+                                decoration: BoxDecoration(
+                                    color: Colors.orangeAccent,
+                                    borderRadius: BorderRadius.circular(6)),
+                                child: Center(
+                                  child: Consumer<LanguageProvider>(
+                                    builder: (BuildContext context, languageProvider, Widget? child) {
+                                      return  Text(
+                                        languageProvider.language == "english" ? "Toran" : "तोरण",
+                                        style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
 
                   // Puja Thali
 
                   _isThaliGifVisible
                       ? Container()
-                      : Positioned(
-                          bottom: 90,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: () {}, // Rotate when tapped
-                              child: Draggable(
-                                feedback: Image.asset(
-                                  'assets/images/silverthali.gif',
-                                  height: 75,
-                                ),
-                                childWhenDragging: Container(), // Optional
-                                onDragStarted: () {
-                                  // Optional callback when drag starts
-                                },
-                                onDragUpdate: (details) {
-                                  // Update the position of the image based on the drag update
-                                  setState(() {
-                                    _offset = details.globalPosition;
-                                  });
-                                },
-                                onDragEnd: (details) {
-                                  // Optional callback when drag ends
-                                },
-                                child: Image.asset(
-                                  thaliImages[_currentThaliIndex],
-                                  height: 65,
+                      : Consumer<AudioPlayerManager>(
+                        builder: (BuildContext context, audioManager, Widget? child) {
+                          return Positioned(
+                            bottom: audioManager.isMusicBarVisible ? 60 : 90,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: () {}, // Rotate when tapped
+                                child: Draggable(
+                                  feedback: Image.asset(
+                                    'assets/images/silverthali.gif',
+                                    height: 75,
+                                  ),
+                                  childWhenDragging: Container(), // Optional
+                                  onDragStarted: () {
+                                    // Optional callback when drag starts
+                                  },
+                                  onDragUpdate: (details) {
+                                    // Update the position of the image based on the drag update
+                                    setState(() {
+                                      _offset = details.globalPosition;
+                                    });
+                                  },
+                                  onDragEnd: (details) {
+                                    // Optional callback when drag ends
+                                  },
+                                  child: Image.asset(
+                                    "assets/images/silverthali.gif",
+                                    //thaliImages[_currentThaliIndex],
+                                    height: 65,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
+                      ),
                   // Other buttons...
                 ],
               ),
@@ -794,6 +958,36 @@ class _MandirHomePageState extends State<MandirHomePage>
           ],
         ),
       ),
+
+      bottomNavigationBar: Consumer<AudioPlayerManager>(
+        builder: (context, audioManager, child) {
+          if (audioManager.isMusicBarVisible){
+            return MusicBar(enName: widget.enName,hiName: widget.hiName,animateBell: _animateBell,);
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
+
+  Widget _buildGifWidget(String gifPath) {
+    return Center(
+      child: RepaintBoundary(
+        child: Image.asset(
+          gifPath,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+}
+
+class _GifAnimation {
+  final String gifPath;
+  final bool isFirst;
+  final UniqueKey key;
+
+  _GifAnimation({required this.gifPath, required this.isFirst, required this.key});
 }
