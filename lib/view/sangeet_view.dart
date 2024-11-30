@@ -20,27 +20,10 @@ import 'lyrics_bhajan.dart';
 class SangeetView extends HookWidget {
    SangeetView(
   this.godNameHindi,
-  {
-    //
-    // required this.musicData,
-    // required this.categoryId,
-    // required this.subCategoryId,
-    // required this.allcategorymodel,
-    // required this.MyCurrentIndex,
-    // required this.subCategoryModel,
-     required this.godName,
+  {required this.godName,});
 
-  }
-  );
-
-  // final int MyCurrentIndex;
-  // final List subCategoryModel;
    final String godName;
    final String godNameHindi;
-  // final List<Sangeet> musicData;
-  // final int categoryId;
-  // final int subCategoryId;
-
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +34,6 @@ class SangeetView extends HookWidget {
     final isLoading = useState<bool>(false);
 
     final mandirBhajan = useState<List<Subcategory>>([]);
-
     final bhajanDataList = useState<List<Sangeet>>([]);
     final allcategorymodel = useState<List<Sangeet>>([]);
 
@@ -63,9 +45,6 @@ class SangeetView extends HookWidget {
        audioManager = Provider.of<AudioPlayerManager>(context);
 
        print(" My Current Selected Language Is $currentLanguage");
-
-       // print("My category Id ${widget.categoryId}");
-       //  print("My SubCategoryId ${widget.subCategoryId}");
 
        isLoading.value = true;
 
@@ -445,42 +424,11 @@ class SangeetView extends HookWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
 
-                      // buildBhajanview(context, isLoading.value, true, false, allcategorymodel.value,
-                      //    // bhajanDataList.value,
-                      //     audioManager,0),
-
                       SangeetViewBhajan(0,isFixedTab: true,isAllTab: false,categoryId: categoryData.value!.id,),
 
                       ...mandirBhajan.value.map((cat) =>
 
-                      // buildBhajanview(context, isLoading.value, false, true, allcategorymodel.value,
-                      //    // bhajanDataList.value
-                      //      audioManager,cat.id),
-
                        SangeetViewBhajan(cat.id,isAllTab: true,isFixedTab: false, categoryId: categoryData.value!.id,),)
-
-                      // BhajanList(
-                      //   subCategoryId,
-                      //   subCategoryModel,
-                      //   godName,
-                      //   godNameHindi,
-                      //   categoryId: categoryId,
-                      //   isToggle: false,
-                      //   isFixedTab: true,
-                      //   isAllTab: false,
-                      //   isMusicBarVisible: false,
-                      // ),
-                      // ...filteredCategories.map((cat) => BhajanList(
-                      //   cat.id,
-                      //   filteredCategories,
-                      //   godName,
-                      //   godNameHindi,
-                      //   categoryId: categoryId,
-                      //   isToggle: false,
-                      //   isFixedTab: false,
-                      //   isAllTab: true,
-                      //   isMusicBarVisible: false,
-                      // ))
 
                       ],
                   ),
@@ -551,13 +499,7 @@ class SangeetView extends HookWidget {
     } else if (isAllTab) {
       selectedMusic = bhajanDataList[index];
     }
-    // else {
-    //   // Assuming subCategoryModel contains Sangeet objects
-    //   selectedMusic = widget.subCategoryModel[index];
-    // }
-
     audioManager.playMusic(selectedMusic!).then((_) {
-        //_isMusicBarVisible = widget.isToggle;
     }).catchError((error) {
       print('Error playing music: $error');
     });
@@ -582,15 +524,6 @@ class SangeetView extends HookWidget {
         hasData = bhajanDataList.isNotEmpty;
         print("All Tab - Data Available: $hasData, Count: ${bhajanDataList.length}");
       }
-      // else {
-      //   hasData = widget.subCategoryModel.isNotEmpty; // For other tab types
-      //   print("Subcategory Tab - Data Available: $hasData, Count: ${widget.subCategoryModel.length}");
-      // }
-
-      // If no data is available, show the "No Data Here" message
-      // if (!hasData) {
-      //   return Center(child: Text("No Data Here"));
-      // }
 
       // Display the list if there is data
       return ListView.builder(
@@ -598,16 +531,10 @@ class SangeetView extends HookWidget {
         shrinkWrap: true,
         itemCount: isFixedTab
             ? allcategorymodel.length : bhajanDataList.length,
-        // : widget.isAllTab
-        // ? bhajanDataList.length
-        //  : widget.subCategoryModel.length,
         padding: EdgeInsets.symmetric(vertical: screenWidth * 0.03),
         itemBuilder: (context, index) {
           final itemData = isFixedTab
               ? allcategorymodel[index] : bhajanDataList[index];
-          // : widget.isAllTab
-          // ? bhajanDataList[index]
-          // : widget.subCategoryModel[index];
 
           return InkWell(
             onTap: () => playMusic(index),
@@ -633,7 +560,7 @@ class SangeetView extends HookWidget {
                       ),
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6),
                         color: Colors.black.withOpacity(0.5),

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../model/sangeet_model.dart';
 
 class FavouriteProvider with ChangeNotifier {
-  late List<Sangeet> _favouriteBhajan = [];
+  late final List<Sangeet> _favouriteBhajan = [];
 
   List<Sangeet> get favouriteBhajan => _favouriteBhajan;
 

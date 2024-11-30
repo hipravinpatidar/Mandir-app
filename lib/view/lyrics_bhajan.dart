@@ -3,7 +3,6 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:share_plus/share_plus.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
-
 import 'custom_colors.dart';
 
 class Lyricsbhajan extends StatefulWidget {

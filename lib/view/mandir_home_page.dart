@@ -2,14 +2,13 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:jaap_latest/controller/language_manager.dart';
-import 'package:gif/gif.dart';
 import 'package:jaap_latest/view/sangeet_view.dart';
 import 'package:provider/provider.dart';
-
 import '../controller/audioplayer_manager.dart';
 import '../controller/music_bar.dart';
 
 class MandirHomePage extends StatefulWidget {
+
   int? id;
   String? hiName;
   String? enName;
@@ -68,15 +67,11 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
      'assets/images/mandirthird.jpg',
      'assets/images/mandirfourth.jpg',
 
-
-    // 'assets/images/backfirst.jpg',
-    // 'assets/images/backsecond.jpg',
   ];
 
   // Toran images list
   List<String> toranImages = [
     'assets/images/toranfirst.png',
-    //'assets/images/toransecond.png',
     'assets/images/toranthird.png',
     'assets/images/toranfourth.png',
     'assets/images/toranfifth.png',
@@ -313,7 +308,7 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
 
             PageView.builder(
               controller: _pageController,
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               pageSnapping: true,
               scrollDirection: Axis.vertical,
               onPageChanged: (index) {
@@ -505,10 +500,8 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
                                   width: screenWidth * 0.12,
                                   height: screenWidth * 0.12,
                                   decoration: BoxDecoration(
-                                    border:
-                                    Border.all(color: Colors.white, width: 1),
-                                    // color: Colors.orange.shade800
-                                    //     .withOpacity(0.4), // Highlight color
+                                    border: Border.all(color: Colors.white, width: 1),
+                                    // color: Colors.orange.shade800.withOpacity(0.4), // Highlight color
                                     borderRadius: BorderRadius.circular(300),
                                     image: DecorationImage(image:
                                     AssetImage("assets/images/flowerbuttonanimation.gif") )
@@ -528,10 +521,11 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
                                           height: 20,
                                           width: 30,
                                           color: Colors.transparent,
+                                         // color: Colors.green,
                                         ),
                                       ),
 
-                                      SizedBox(height: 5,),
+                                      SizedBox(height: 2,),
                                       GestureDetector(
                                         onTap: () {
                                           _playNewGif(false);
@@ -544,9 +538,9 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
                                           height: 20,
                                           width: 30,
                                           color: Colors.transparent,
+                                         // color: Colors.red,
                                         ),
                                       ),
-
 
                                     ],
                                   )
@@ -766,7 +760,7 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
                                     color: Colors.orange.shade800.withOpacity(0.4), // highlight color
                                     borderRadius: BorderRadius.circular(300),
                                   ),
-                                  child: Image.asset("assets/images/buttonanimate.gif"),
+                                  child: Image.asset("assets/images/chadawabutton.png"),
                                 ),
                               ),
                               const SizedBox(height: 3),
@@ -825,7 +819,7 @@ class _MandirHomePageState extends State<MandirHomePage> with TickerProviderStat
                                         .withOpacity(0.4), // highlight color
                                     borderRadius: BorderRadius.circular(300),
                                   ),
-                                  child: Image.asset("assets/images/buttonanimate.gif"),
+                                  child: Image.asset("assets/images/bhajanbutton.png"),
                                 ),
                               ),
                               const SizedBox(height: 3),

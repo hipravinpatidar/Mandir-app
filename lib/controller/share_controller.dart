@@ -4,7 +4,9 @@ import '../model/sangeet_model.dart';
 
 class ShareMusic extends ChangeNotifier {
   void shareSong(Sangeet song) {
-    print("My Share Song ${song.title}");
+    if (kDebugMode) {
+      print("My Share Song ${song.title}");
+    }
     Share.share(
       'Check out this song: ${song.title} by ${song.singerName}\nListen here: ${song.audio}',
     );

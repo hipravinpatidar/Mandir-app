@@ -150,7 +150,7 @@ class _GridtabsState extends State<Gridtabs> {
       ),
 
 
-      body:  isLoading ? Center(child: CircularProgressIndicator(color: Colors.orange,)) : GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      body:  isLoading ? const Center(child: CircularProgressIndicator(color: Colors.orange,)) : GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
         childAspectRatio: 1.2,
       ),
@@ -175,7 +175,6 @@ class _GridtabsState extends State<Gridtabs> {
                     image: DecorationImage(image: NetworkImage(
                       mandirTabs[index].thumbnail
                     ),fit: BoxFit.cover),
-
                   ),
                 ),
                 Consumer<LanguageProvider>(builder: (BuildContext context, languageProvider, Widget? child) {

@@ -181,8 +181,6 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
 
           ),),
 
-     // Text("View all"),
-
     ];
 
     return
@@ -251,7 +249,7 @@ class _MandirState extends State<Mandir> with TickerProviderStateMixin {
             if (index == mandirTabs.length) {
               // Scrolled past the last tab, loop to the first
               Future.delayed(const Duration(milliseconds: 300), () {
-                _pageController.animateToPage(0, duration: Duration(seconds: 1), curve: Curves.bounceInOut); // Jump back to the first page
+                _pageController.animateToPage(0, duration: const Duration(seconds: 1), curve: Curves.bounceInOut); // Jump back to the first page
                 _tabController.animateTo(0);  // Sync the TabBar
               });
             } else if (index == -1) {

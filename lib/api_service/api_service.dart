@@ -14,28 +14,6 @@ class ApiService {
     }
   }
 
-  //<Map<String, dynamic>>
-
-  // Future postData(String url, Map<String, dynamic> data) async {
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse(url),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: jsonEncode(data),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       return jsonDecode(response.body )as Map<String, dynamic>;
-  //     } else {
-  //       throw Exception('Failed to load data');
-  //     }
-  //   } catch (e) {
-  //     throw Exception(e.toString());
-  //   }
-  // }
-
   Future<Map<String, dynamic>?> postData(String url, Map<String, dynamic> data) async {
     try {
       final response = await http.post(
